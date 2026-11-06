@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#07151f">
+  <title>Star Trek Limited Scout</title>
+  <style>
+    :root { color-scheme:dark; --ink:#f6fbff; --muted:#9fb0bd; --panel:rgba(11,29,42,.92); --edge:rgba(156,220,255,.18); --accent:#72e6ff; --common:#c9ced8; --uncommon:#83cbe0; --rare:#f2cc67; --mythic:#ff7c48; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; color:var(--ink); font:16px/1.42 system-ui,sans-serif; background:radial-gradient(circle at 15% 0,#164866 0,transparent 30%),radial-gradient(circle at 90% 5%,#49316c 0,transparent 28%),linear-gradient(145deg,#030b11,#07151f 55%,#0b1422); }
+    button,input,select { font:inherit; }
+    button,select { color:inherit; }
+    .shell { width:min(1180px,100%); margin:auto; padding:20px 14px 60px; }
+    header { padding:10px 2px 17px; }
+    h1 { margin:0; font-size:clamp(1.8rem,6vw,3.5rem); letter-spacing:-.045em; }
+    header p { margin:6px 0 0; color:var(--muted); }
+    .beam { height:5px; margin-top:15px; border-radius:8px; background:linear-gradient(90deg,#fff4b2,#6fcfff,#b48aff,#ff6961,#68e58c); box-shadow:0 0 16px #64dfff; }
+    .toolbar { position:sticky; top:0; z-index:5; padding:9px 0; backdrop-filter:blur(15px); background:linear-gradient(#07151fee,transparent); }
+    .tabs { display:grid; grid-template-columns:repeat(5,1fr); gap:6px; }
+    .tab,.pill,.retry { border:1px solid var(--edge); border-radius:12px; background:#102536; padding:9px 7px; cursor:pointer; font-weight:750; }
+    .tab.active,.pill.active { color:#06121a; background:linear-gradient(120deg,#7ce8ff,#a5ffba); border-color:transparent; }
+    .search { width:100%; margin-top:8px; border:1px solid var(--edge); border-radius:12px; background:#05101a; color:var(--ink); padding:11px 13px; }
+    .filters,.themes,.controls { display:flex; gap:6px; overflow-x:auto; padding:8px 0 1px; }
+    .pill { flex:0 0 auto; min-width:40px; padding:7px 10px; font-size:.84rem; }
+    .status { color:var(--muted); padding:22px 3px; }
+    .method,.theme-note { margin:13px 0; padding:11px 13px; border:1px solid var(--edge); border-radius:13px; color:var(--muted); background:#07131dcc; font-size:.88rem; }
+    .theme-note strong,.method strong { color:var(--ink); }
+    select { border:1px solid var(--edge); border-radius:10px; background:#102536; padding:8px 10px; }
+    .rarity { margin:21px 0 27px; }
+    .rarity-title,.slot-title { display:flex; align-items:center; gap:9px; margin:0 0 9px; font-size:.92rem; letter-spacing:.08em; text-transform:uppercase; }
+    .rarity-title::after,.slot-title::after { content:""; height:1px; flex:1; background:var(--edge); }
+    .gem { width:13px; height:13px; transform:rotate(45deg); border-radius:3px; background:var(--rarity-color); box-shadow:0 0 12px var(--rarity-color); }
+    .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(154px,1fr)); gap:12px; }
+    .card { width:100%; display:flex; flex-direction:column; gap:7px; text-align:left; border:1px solid var(--edge); border-radius:14px; background:var(--panel); padding:6px; cursor:pointer; overflow:hidden; transition:.14s ease; }
+    .card:hover,.card:focus-visible { transform:translateY(-4px); border-color:#98e9ff99; outline:none; }
+    .card-thumb { width:100%; aspect-ratio:488/680; display:block; border-radius:10px; object-fit:cover; background:#02070b; }
+    .card-caption { display:grid; grid-template-columns:8px minmax(0,1fr); gap:7px; padding:1px 3px 4px; }
+    .color-dot { border-radius:9px; background:var(--card-color); box-shadow:0 0 10px var(--card-color); }
+    .name { min-width:0; font-weight:760; line-height:1.2; }
+    .sub,.mana { display:block; margin-top:3px; color:var(--muted); font-size:.7rem; font-weight:500; line-height:1.25; }
+    .mana { color:#fff0bd; font-family:ui-monospace,monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .w { --card-color:#fff0a8; }.u { --card-color:#55b8ff; }.b { --card-color:#a476d2; }.r { --card-color:#ff6257; }.g { --card-color:#5ddd78; }.c { --card-color:#b8bec9; }.multi { --card-color:linear-gradient(#ffe075,#59bfff,#af7ce6,#ff665e,#66dc7e); }
+    dialog { width:min(780px,calc(100% - 20px)); max-height:calc(100vh - 20px); padding:0; border:1px solid var(--edge); border-radius:20px; color:var(--ink); background:#07151f; box-shadow:0 30px 100px #000; }
+    dialog::backdrop { background:#010409d9; backdrop-filter:blur(5px); }
+    .modal { display:grid; grid-template-columns:minmax(190px,42%) 1fr; }
+    .art { width:100%; height:100%; min-height:340px; object-fit:cover; background:#02070b; }
+    .info { padding:22px; overflow:auto; }.info h2 { margin:0 35px 3px 0; line-height:1.08; }.meta { color:#ffd77a; font-weight:700; }.type { color:var(--muted); margin:12px 0; }.oracle { white-space:pre-line; padding:14px; border:1px solid var(--edge); border-radius:12px; background:#030b11; }
+    .chips { display:flex; flex-wrap:wrap; gap:5px; margin:12px 0; }.chip { padding:4px 8px; border:1px solid var(--edge); border-radius:999px; color:#dceaf2; font-size:.78rem; }.close { position:absolute; right:12px; top:12px; width:36px; height:36px; border:0; border-radius:50%; background:#18364b; cursor:pointer; }.link { display:inline-block; margin-top:12px; color:#83ddff; }
+    @media(max-width:650px) { .shell{padding-top:10px}.tabs{grid-template-columns:repeat(3,1fr)}.tab{font-size:.78rem}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.modal{display:block}.art{display:block;height:auto;min-height:0;max-height:52vh;object-fit:contain}.info{padding:18px} }
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header><h1>Star Trek Limited Scout</h1><p id="api-status">Opening a subspace channel to Scryfall…</p><div class="beam"></div></header>
+  <div class="toolbar">
+    <nav class="tabs" aria-label="Card categories">
+      <button class="tab active" data-view="wipes">Board wipes</button><button class="tab" data-view="removal">Removal</button><button class="tab" data-view="bombs">Bombs</button><button class="tab" data-view="themes">Themes</button><button class="tab" data-view="curve">Best by curve</button>
+    </nav>
+    <input class="search" id="search" type="search" placeholder="Search names, rules, types, or mechanics…" aria-label="Search cards">
+    <div class="filters" id="color-filters" aria-label="Filter by color"></div>
+  </div>
+  <div id="content"><p class="status">Loading the TRK gallery…</p></div>
+</main>
+<dialog id="details"><button class="close" aria-label="Close">×</button><div class="modal"><img class="art" id="art" alt=""><section class="info"><h2 id="detail-name"></h2><div class="meta" id="detail-meta"></div><div class="type" id="detail-type"></div><div class="chips" id="detail-chips"></div><div class="oracle" id="detail-oracle"></div><a class="link" id="scryfall-link" target="_blank" rel="noopener">Open on Scryfall</a></section></div></dialog>
+<script>
+const API="https://api.scryfall.com/cards/search?q=set%3Atrk&unique=cards&order=set";
+const rarityOrder=["common","uncommon","rare","mythic"];
+const rarityLabels={common:"Common — repeatable foundation",uncommon:"Uncommon — signposts and premium roles",rare:"Rare — infrequent",mythic:"Mythic — very infrequent"};
+const rarityColors={common:"var(--common)",uncommon:"var(--uncommon)",rare:"var(--rare)",mythic:"var(--mythic)"};
+const access={common:{bonus:8,label:"High"},uncommon:{bonus:4,label:"Medium"},rare:{bonus:1,label:"Low"},mythic:{bonus:0,label:"Very low"}};
+const wipes=new Set(["D'Ghor Bloodletter","The Destruction of Praxis","Encounter the Unknown","Khan, Despot by Design","Crystalline Entity","Engineered Explosives"]);
+const removal=new Set(["70,000 Light-Years from Home","Command Decision","Malfunctioning Holodeck","Saavik, Stoic Student","Set Phasers to . . .","U.S.S. Excelsior, Cutting Edge","Energize","Enterprise NX-01","Interstellar Effigy","Suus Mahna Practitioner","Wesley Crusher, Starfleet Cadet","Armus, Skin of Evil","D'Ghor Bloodletter","De-evolve","Eject the Warp Core","He's Dead, Jim","Impossible Choice","In the Pale Moonlight","Resistance Is Futile","Dahar Master","Encounter the Unknown","Genesis Effect","Khaaaaaaaaaaaannn!","Munitions Enthusiast","Planetary Bombardment","Plasma Cascade","Transporter Malfunction","The Wrath of Khan","Amok Time","Common Goal","Borg Cube","Constable Odo","Locutus, the One Who Speaks","Type-2 Phaser","Spatial Anomaly"]);
+const bombs=new Set(["Captain Jean-Luc Picard","U.S.S. Enterprise-A, Free Spirit","Excalbian Gamemaster","Kobayashi Maru Scenario","Mr. Spock, Science Officer","Scotty, Miracle Worker","The Destruction of Praxis","Death Is Irrelevant","Georgiou, Terran Emperor","Gul Dukat, Colonial Prefect","Captain James T. Kirk","Encounter the Unknown","Pah-Wraith","The Wrath of Khan","Captain Kathryn Janeway","Dr. Joseph M'Benga","Holo-Engineer","Rok-Tahk, Budding Scientist","U.S.S. Discovery, at Black Alert","Borg Cube","The Inner Light","Crystalline Entity","Deep Space 9","Primary Unimatrix Adjunct","Wesley Crusher, Starfleet Cadet","U.S.S. Reliant, From Hell's Heart","Cleveland Booker, Empath","Gray and Adira, Forever Joined","Hologram Stalker","Khan, Despot by Design"]);
+const themes={
+  WU:{label:"WU Spacecraft",note:"Station Spacecraft by tapping creatures; stun and untap effects buy the time and bodies needed to launch them.",terms:["Spacecraft","Station","charge counter"]},
+  UB:{label:"UB Dilemmas",note:"Modal spells trigger face-a-dilemma payoffs while surveil and tempo keep cards flowing.",terms:["dilemma","choose one","surveil"]},
+  BR:{label:"BR Sacrifice",note:"Cash in creatures, artifacts, and temporary Klingon bodies for damage, counters, cards, and death triggers.",terms:["sacrifice","dies","Klingon Warrior creature token"]},
+  RG:{label:"RG Landfall",note:"Landfall and Planet creation reward extra land drops; strange new worlds makes varied land names matter.",terms:["Landfall","Planet land token","differently named lands"]},
+  GW:{label:"GW Counters",note:"Build a wide counter board, protect it, then turn combat damage into cards or snowballing stats.",terms:["+1/+1 counter","with a counter","counters on"]},
+  WB:{label:"WB Borg",note:"Artifact creatures and Borg go wide, receive global bonuses, and unlock assimilation or artifact payoffs.",terms:["Borg","artifact creature","Assimilate"]},
+  UR:{label:"UR Noncreature",note:"Noncreature spells create Officers, untap engines, grow threats, and enable copy/value turns.",terms:["noncreature spell","instant or sorcery","cast a spell"]},
+  BG:{label:"BG Graveyard",note:"Surveil stocks the graveyard; recursion and cards leaving it generate value and bodies.",terms:["surveil","from your graveyard","leaves your graveyard"]},
+  RW:{label:"RW Power 8",note:"Attack once total power reaches 8, using Officers, haste, Equipment, and tapping as setup.",terms:["total power 8","Whenever you attack","Officer creature token"]},
+  GU:{label:"GU New Worlds",note:"Use differently named lands and strange new worlds for scalable creatures, mana, and late-game abilities.",terms:["Strange new worlds","differently named lands","Planet land token"]},
+  mechanics:{label:"Set mechanics",note:"The broad mechanical package: station, beam me up, dilemmas, strange new worlds, Federation, surveil, and landfall.",terms:["Station","Beam me up","dilemma","Strange new worlds","Federation","Surveil","Landfall"]}
+};
+const state={cards:[],view:"wipes",query:"",color:"ALL",theme:"WU",rarity:"all",format:"pick2"};
+const content=document.querySelector("#content"),dialog=document.querySelector("#details");
+const faces=card=>card.card_faces||[card];
+const textOf=card=>faces(card).map(face=>face.oracle_text||"").join(" ");
+const primary=card=>card.card_faces?.[0]||card;
+function colorKey(card){const colors=card.colors||primary(card).colors||[];return colors.length>1?"M":(colors[0]||"C")}
+function colorInfo(card){const key=colorKey(card);return {key,css:{W:"w",U:"u",B:"b",R:"r",G:"g",C:"c",M:"multi"}[key],label:{W:"White",U:"Blue",B:"Black",R:"Red",G:"Green",C:"Colorless",M:"Multicolor"}[key]}}
+function manaValue(cost=""){return [...cost.matchAll(/\{([^}]+)\}/g)].reduce((sum,[,s])=>sum+(/^\d+$/.test(s)?Number(s):s==="X"?0:/^2\//.test(s)?2:1),0)}
+function speed(card){const type=card.type_line||"";if(type.includes("Instant"))return"Instant";if(type.includes("Sorcery"))return"Sorcery";if(type.includes("Land"))return"Land ability";return"Permanent/ability"}
+function powerScore(card){const face=primary(card),text=textOf(card).toLowerCase(),mv=Math.max(1,card.cmc??manaValue(face.mana_cost));let score=42;
+  if(face.type_line?.includes("Creature")){const p=Number(face.power),t=Number(face.toughness);if(Number.isFinite(p)&&Number.isFinite(t))score+=Math.max(-10,Math.min(16,(p+t-mv*2)*2))}
+  const weights={flying:6,lifelink:4,"double strike":9,"first strike":3,menace:3,vigilance:2,trample:2,haste:3,flash:2,deathtouch:5,hexproof:5,indestructible:7,ward:3};for(const[k,w]of Object.entries(weights))if(text.includes(k))score+=w;
+  if(/destroy target|exile target/.test(text))score+=14;if(/gets -[3-9x]/.test(text))score+=10;if(/deals? [3-9x] damage to (?:any|target)/.test(text))score+=11;else if(/deals? [12] damage to (?:any|target)/.test(text))score+=5;if(/fight/.test(text))score+=7;
+  if(/draw (?:a|one) card/.test(text))score+=5;if(/draw (?:two|three|x) cards/.test(text))score+=9;if(/create (?:a|one|two|three|x)/.test(text))score+=4;if(/destroy all|all creatures get -|damage to each creature/.test(text))score+=18;if(typeIs(card,"Instant"))score+=2;if(bombs.has(card.name))score+=8;return Math.max(20,Math.min(99,Math.round(score)))}
+function typeIs(card,type){return faces(card).some(face=>(face.type_line||"").includes(type))}
+function analysis(card){const power=powerScore(card),frequency=access[card.rarity]||access.rare,text=textOf(card).toLowerCase();let formatBonus=0;if(state.format==="sealed"&&(/landcycling|add one mana of any color|surveil/.test(text)))formatBonus+=3;if(state.format==="pick2"&&(typeIs(card,"Instant")||/choose one|landcycling/.test(text)))formatBonus+=2;return {power,frequency,rank:power+frequency.bonus+formatBonus,mv:card.cmc??manaValue(primary(card).mana_cost)}}
+function matches(card){const hay=[card.name,card.type_line,textOf(card),...(card.keywords||[])].join(" ").toLowerCase();return hay.includes(state.query.toLowerCase())&&(state.color==="ALL"||colorKey(card)===state.color)}
+function fitsThemeColors(card,key){if(key==="mechanics")return true;const colors=card.colors||primary(card).colors||[];return !colors.length||colors.every(color=>key.includes(color))}
+function entries(){let cards;if(state.view==="wipes")cards=state.cards.filter(c=>wipes.has(c.name));else if(state.view==="removal")cards=state.cards.filter(c=>removal.has(c.name));else if(state.view==="bombs")cards=state.cards.filter(c=>bombs.has(c.name));else{const theme=themes[state.theme];cards=state.cards.filter(c=>fitsThemeColors(c,state.theme)&&theme.terms.some(term=>[c.name,textOf(c),...(c.keywords||[])].join(" ").toLowerCase().includes(term.toLowerCase())))}return cards.filter(matches)}
+function imageFor(card,size="normal"){return card.image_uris?.[size]||card.card_faces?.find(f=>f.image_uris)?.image_uris?.[size]||""}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+function renderFilters(){const labels={ALL:"All",W:"White",U:"Blue",B:"Black",R:"Red",G:"Green",C:"Colorless",M:"Gold"};document.querySelector("#color-filters").innerHTML=Object.entries(labels).map(([k,v])=>`<button class="pill ${state.color===k?"active":""}" data-color="${k}">${v}</button>`).join("");document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>{state.color=b.dataset.color;renderFilters();render()})}
+function raritySections(cards){const indexed=cards.map((card,index)=>({card,index}));return rarityOrder.map(r=>{const group=indexed.filter(e=>e.card.rarity===r).sort((a,b)=>a.card.name.localeCompare(b.card.name));if(!group.length)return"";return `<section class="rarity" style="--rarity-color:${rarityColors[r]}"><h2 class="rarity-title"><span class="gem"></span>${rarityLabels[r]} (${group.length})</h2><div class="cards">${group.map(e=>cardButton(e.card,e.index)).join("")}</div></section>`}).join("")}
+function render(){if(state.view==="curve")return renderCurve();let cards=entries(),intro="";if(state.view==="themes"){intro=`<div class="themes">${Object.entries(themes).map(([k,t])=>`<button class="pill ${state.theme===k?"active":""}" data-theme="${k}">${t.label}</button>`).join("")}</div><div class="theme-note"><strong>${themes[state.theme].label}:</strong> ${themes[state.theme].note}</div>`}else if(state.view==="bombs")intro='<div class="method"><strong>Bomb candidates:</strong> cards likely to dominate or swing a Limited game. They remain grouped by rarity—do not build a plan that requires opening a mythic.</div>';else if(state.view==="wipes")intro='<div class="method"><strong>Wipe watch:</strong> includes full sweepers and meaningful mini/conditional sweepers. Play around commons and uncommons more often than rares.</div>';
+  content.innerHTML=intro+(cards.length?raritySections(cards):'<p class="status">No matching cards. Even Q found nothing.</p>');document.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{state.theme=b.dataset.theme;render()});wireCards(cards)}
+function renderCurve(){const candidates=state.cards.filter(c=>matches(c)&&!typeIs(c,"Land")&&(state.rarity==="all"||c.rarity===state.rarity)).map(card=>({card,a:analysis(card)}));const shown=[];const costs=[...new Set(candidates.map(e=>e.a.mv))].sort((a,b)=>a-b);const controls=`<div class="controls"><select id="format"><option value="pick2" ${state.format==="pick2"?"selected":""}>Pick-Two planning</option><option value="sealed" ${state.format==="sealed"?"selected":""}>Sealed planning</option></select><select id="rarity"><option value="all">All rarities</option>${rarityOrder.map(r=>`<option value="${r}" ${state.rarity===r?"selected":""}>${r}</option>`).join("")}</select></div>`;const slots=costs.map(cost=>{const best=candidates.filter(e=>e.a.mv===cost).sort((x,y)=>y.a.rank-x.a.rank||y.a.power-x.a.power).slice(0,6);return `<section class="rarity"><h2 class="slot-title">Mana value ${cost}</h2><div class="cards">${best.map(e=>{const i=shown.push(e.card)-1;return cardButton(e.card,i,e.a)}).join("")}</div></section>`}).join("");content.innerHTML=`<div class="method"><strong>Curve planning model:</strong> Power estimates efficiency, interaction, evasion, and card advantage. Planning Rank adds a small accessibility bonus for common/uncommon foundations plus format flexibility. It is not pick order, win-rate data, or an excuse to pass a visible bomb.</div>${controls}${slots||'<p class="status">No matching cards.</p>'}`;document.querySelector("#format").onchange=e=>{state.format=e.target.value;render()};document.querySelector("#rarity").onchange=e=>{state.rarity=e.target.value;render()};wireCards(shown)}
+function cardButton(card,index,a=null){const color=colorInfo(card),stats=a?`${card.rarity.toUpperCase()} · Power ${a.power} · Access ${a.frequency.label} · Rank ${a.rank}`:`${card.rarity.toUpperCase()} · ${speed(card)}`;return `<button class="card ${color.css}" data-entry="${index}" aria-label="Open details for ${escapeHtml(card.name)}"><img class="card-thumb" src="${escapeHtml(imageFor(card,"small"))}" alt="${escapeHtml(card.name)} card" loading="lazy" decoding="async"><span class="card-caption"><span class="color-dot"></span><span class="name">${escapeHtml(card.name)}<small class="sub">${escapeHtml(color.label)} · ${escapeHtml(stats)}</small><small class="mana">${escapeHtml(primary(card).mana_cost||"No mana cost")}</small></span></span></button>`}
+function wireCards(cards){content.querySelectorAll(".card").forEach(b=>b.onclick=()=>openDetails(cards[Number(b.dataset.entry)]))}
+function openDetails(card){const face=primary(card),color=colorInfo(card),a=analysis(card);document.querySelector("#detail-name").textContent=card.name;document.querySelector("#detail-meta").textContent=`${color.label} · ${card.rarity.toUpperCase()} · ${face.mana_cost||"No mana cost"}`;document.querySelector("#detail-type").textContent=card.type_line;document.querySelector("#detail-oracle").textContent=textOf(card)||"No rules text.";const tags=[`Power ${a.power}`,`Access ${a.frequency.label}`,speed(card),...(card.keywords||[])];if(wipes.has(card.name))tags.unshift("Board wipe");if(removal.has(card.name))tags.unshift("Removal");if(bombs.has(card.name))tags.unshift("Bomb candidate");document.querySelector("#detail-chips").innerHTML=[...new Set(tags)].map(t=>`<span class="chip">${escapeHtml(t)}</span>`).join("");const art=document.querySelector("#art");art.src=imageFor(card);art.alt=`${card.name} card artwork`;document.querySelector("#scryfall-link").href=card.scryfall_uri;dialog.showModal()}
+async function loadCards(){try{let next=API;while(next){const response=await fetch(next,{headers:{Accept:"application/json"}});if(!response.ok)throw new Error(`Scryfall returned ${response.status}`);const page=await response.json();state.cards.push(...page.data);next=page.has_more?page.next_page:null;if(next)await new Promise(r=>setTimeout(r,120))}document.querySelector("#api-status").textContent=`${state.cards.length} unique Arena-legal TRK cards loaded live from Scryfall.`;renderFilters();render()}catch(error){document.querySelector("#api-status").textContent="Scryfall connection failed.";content.innerHTML=`<p class="status">${escapeHtml(error.message)}<br><button class="retry">Retry</button></p>`;content.querySelector(".retry").onclick=()=>{state.cards=[];loadCards()}}}
+document.querySelectorAll(".tab").forEach(tab=>tab.onclick=()=>{document.querySelector(".tab.active").classList.remove("active");tab.classList.add("active");state.view=tab.dataset.view;render()});document.querySelector("#search").oninput=e=>{state.query=e.target.value.trim();render()};document.querySelector(".close").onclick=()=>dialog.close();dialog.onclick=e=>{if(e.target===dialog)dialog.close()};loadCards();
+</script>
+</body>
+</html>
