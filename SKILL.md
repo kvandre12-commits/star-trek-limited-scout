@@ -1,7 +1,7 @@
 ---
 name: star-trek-limited-scout
-description: Magic The Gathering Star Trek (TRK) Sealed and Pick-Two Draft assistant. Use for TRK draft picks, sealed pools, board wipes, targeted removal, bombs, mechanics, archetypes, mana curves, or launching the bundled Scryfall-powered card sorter.
-version: "1.0.0"
+description: Magic The Gathering Star Trek (TRK) Sealed and Pick-Two Draft assistant. Use for TRK draft picks, sealed pools, board wipes, targeted removal, bombs, mechanics, archetypes, strategy, card advantage, aggression, mana curves, or launching the bundled Scryfall-powered card sorter.
+version: "1.1.0"
 author: Kurtis and SharpEdge
 tags:
   - magic-the-gathering
@@ -17,7 +17,7 @@ tags:
 # Star Trek Limited Scout
 
 Use the bundled `index.html` as the source of truth for curated categories,
-mechanic themes, and ranking implementation. It loads unique `set:trk` cards
+mechanic themes, strategy field notes, and ranking implementation. It loads unique `set:trk` cards
 from Scryfall at runtime.
 
 ## Launch

@@ -9,13 +9,18 @@ Scryfall and keeps card power separate from rarity-based accessibility.
 - Curated board wipes, targeted removal, and Limited bomb candidates
 - Cards grouped by rarity so commons/uncommons stay visible
 - Ten selectable two-color archetypes plus a set-mechanics view
+- Strategy field notes for removal math, card engines, aggression, tempo,
+  mana development, and Pick-Two pair construction
+- Featured cards to test for every strategy topic
 - Color filtering across every category
 - Pick-Two and Sealed curve-planning modes
 - Separate **Power**, **Access**, and **Planning Rank** labels
 - Responsive card-image gallery with Oracle text and Scryfall links
 
-The rankings are transparent heuristics, not game win-rate data, exact booster
-odds, or a replacement for reading the actual card. Cardboard remains rude.
+The rankings and strategy notes are transparent early heuristics, not game
+win-rate data, exact booster odds, or a replacement for playing the format.
+They are deliberately labeled as field notes so real games can correct them.
+Cardboard remains rude.
 
 ## Run locally
 
